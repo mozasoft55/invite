@@ -50,15 +50,17 @@ function getSheetData(sheet) {
     let obj = {};
     headers.forEach((h, idx) => {
       let val = row[idx];
-      // 1899 Time & ISO Date Fix
+      
+      // Strict Timezone Handling (Asia/Kolkata)
       if (val instanceof Date) {
         const year = val.getFullYear();
         if (year <= 1900) {
-          // It's a pure time field
+          // Pure Time Field -> e.g. "09:30 PM"
           val = Utilities.formatDate(val, "Asia/Kolkata", "hh:mm a");
         } else {
-          // Normal Date
-          val = Utilities.formatDate(val, "Asia/Kolkata", "dd MMM yyyy");
+          // Standard Numeric ISO Date -> "yyyy-MM-dd" (e.g. "2026-10-27")
+          // Is format se frontend 0 error ke sath exact 27th pick karega
+          val = Utilities.formatDate(val, "Asia/Kolkata", "yyyy-MM-dd");
         }
       }
       obj[h] = val;
