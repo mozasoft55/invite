@@ -6,13 +6,11 @@
   <meta name="theme-color" content="#32030B">
   <title>Royal Wedding Invitation</title>
 
-  <!-- Typography Preconnect -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Great+Vibes&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 
   <style>
-    /* Absolute Viewport Lock: Zero Scroll / Zero Bounce */
     html, body {
       margin: 0;
       padding: 0;
@@ -35,7 +33,6 @@
       position: relative;
     }
 
-    /* Ambient Engine Loader */
     #luxury-loader {
       position: fixed;
       inset: 0;
@@ -83,7 +80,6 @@
   <main id="app-mount"></main>
 
   <script type="module">
-    // LIVE DEPLOYED APPS SCRIPT WEB APP URL
     const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbwWI7CL6CND0wZNglUWGUeo8Z7acqDelEGZBn15W07bSSTNhTlsQJ-pBMjDMPCaZYU9/exec";
 
     function removeLoader() {
@@ -94,15 +90,11 @@
       }
     }
 
-    // -------------------------------------------------------------
-    // GLOBAL GUEST DATA NORMALIZER (WORKS GLOBALLY FOR ALL TEMPLATES)
-    // -------------------------------------------------------------
     function normalizeGuestData(searchParams) {
       const rawGuest = searchParams.get('g');
       const rawPerson = parseInt(searchParams.get('p') || '1', 10);
       const isFamilyFlag = searchParams.get('f') === '1';
 
-      // Title-casing (e.g. "md shamim khan" -> "Md Shamim Khan")
       const guestName = rawGuest
         ? rawGuest.replace(/\+/g, ' ').trim().split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
         : 'Respected Guest';
@@ -113,7 +105,6 @@
         name: guestName,
         with_family: isFamilyFlag,
         persons: validPersons,
-        // Global Pre-calculated Display Properties:
         person_display: isFamilyFlag ? '—' : String(validPersons),
         family_display: isFamilyFlag ? '✓' : '✕'
       };
@@ -121,56 +112,42 @@
 
     async function bootstrap() {
       const p = new URLSearchParams(window.location.search);
-
-      // Clean Slug
       let rawSlug = (p.get('w') || 'tarana-akbar-w0001').trim();
       if (rawSlug.endsWith('/')) rawSlug = rawSlug.slice(0, -1);
 
-      // Global Normalized Guest
       const guest = normalizeGuestData(p);
 
+      // CLEAR STALE CACHE PERMANENTLY
       const cacheKey = `royal_cache_${rawSlug}`;
+      localStorage.removeItem(cacheKey);
+
       let weddingPayload = null;
 
       try {
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) weddingPayload = JSON.parse(cached);
-      } catch (e) {}
-
-      // 1. Fetch Backend Data
-      try {
-        const fetchPromise = fetch(`${API_ENDPOINT}?action=wedding&slug=${encodeURIComponent(rawSlug)}`)
-          .then(r => r.json())
-          .then(data => {
-            if (data.success) {
-              try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch(e){}
-              return data;
-            }
-            throw new Error(data.error || 'Record Not Found');
-          });
-
-        if (!weddingPayload) {
-          weddingPayload = await fetchPromise;
+        const res = await fetch(`${API_ENDPOINT}?action=wedding&slug=${encodeURIComponent(rawSlug)}`);
+        const data = await res.json();
+        if (data.success) {
+          weddingPayload = data;
         } else {
-          fetchPromise.catch(() => {});
+          throw new Error(data.error || 'Record Not Found');
         }
       } catch (err) {
         console.error("Backend fetch error:", err);
-        if (!weddingPayload) {
-          weddingPayload = {
-            wedding: {
-              bride_name: 'Tarana',
-              groom_name: 'Akbar',
-              template_id: 'template-02',
-              date: '2026-10-27',
-              time: '09:30 PM'
-            },
-            events: []
-          };
-        }
       }
 
-      // 2. Load & Render Template Dynamically
+      if (!weddingPayload) {
+        weddingPayload = {
+          wedding: {
+            bride_name: 'Tarana',
+            groom_name: 'Akbar',
+            template_id: 'template-02',
+            date: '2026-10-27',
+            time: '09:30 PM'
+          },
+          events: []
+        };
+      }
+
       try {
         const tId = weddingPayload.wedding?.template_id || 'template-02';
         const module = await import(`./templates/${tId}.js?ts=${Date.now()}`);
@@ -191,21 +168,12 @@
         }
       } catch (importErr) {
         console.error("Template rendering error:", importErr);
-        document.getElementById('luxury-loader').innerHTML = `
-          <div style="font-family:'Cinzel',serif; color:#ECC880; text-align:center; padding:20px;">
-            <p style="font-size:14px; letter-spacing:2px;">UNABLE TO INITIALIZE SUITE</p>
-            <small style="font-family:'Cormorant Garamond'; color:#d4af37; font-size:13px;">${importErr.message}</small>
-          </div>`;
-        return;
       }
 
-      // 3. Dismiss Loader
       removeLoader();
     }
 
-    // Safety fallback: Loader 5 seconds se zyada freeze nahi hoga
     setTimeout(removeLoader, 5000);
-
     window.addEventListener('DOMContentLoaded', bootstrap);
   </script>
 </body>
