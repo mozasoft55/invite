@@ -5,7 +5,6 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const safeUrl = u => /^https?:\/\//i.test(String(u || '').trim()) ? esc(String(u).trim()) : '';
 
 const lines = s => String(s ?? '').split(/[;\n]/).map(x => x.trim()).filter(Boolean);
-
 const THEMES = {
 
   maroon:  {primary:'#7a1426', primary_dark:'#3f0713', accent:'#b98a2f', paper_top:'#FFFDF8', paper_bottom:'#F2DFBF', text:'#3b1a1f'},
