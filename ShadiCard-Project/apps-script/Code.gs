@@ -35,13 +35,47 @@ function doGet(e) {
   return responseJSON({ success: false, error: 'Invalid action' });
 }
 
+function excelSerialToIso(serial) {
+  const n = Number(serial);
+  if (!Number.isFinite(n)) return '';
+
+  const utcMs = Date.UTC(1899, 11, 30) + (n * 86400000);
+  const dt = new Date(utcMs);
+  const year = dt.getUTCFullYear();
+  const month = String(dt.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(dt.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function normalizeSheetDate(value) {
   if (value === null || value === undefined) return '';
+
+  if (value instanceof Date) {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    if (value > 1000) {
+      return excelSerialToIso(value);
+    }
+    return ''; 
+  }
 
   let raw = String(value).trim();
   if (!raw) return '';
 
-  // Already normalized ISO date from a spreadsheet formula or prior pass.
+  // Excel numeric serial stored as a string (e.g. "45191").
+  if (/^-?\d+(\.\d+)?$/.test(raw)) {
+    const num = Number(raw);
+    if (Math.abs(num) > 1000) {
+      return excelSerialToIso(num);
+    }
+  }
+
+  // Already normalized ISO date from spreadsheet formula or prior pass.
   if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
     return raw;
   }
