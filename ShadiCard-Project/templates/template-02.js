@@ -289,8 +289,8 @@ ${P(1, `<div>${crest(ini, 4.6)}<div class="cap" style="font-size:1.1em;margin-to
   <div class="to"><span class="sc">To</span><span class="sc g">${gName}</span></div>
   <div class="mf"><svg class="spark" viewBox="0 0 24 24"><use href="#sp"/></svg><div><div class="sc">Person</div><div class="box">${persons}</div></div><i class="d"></i><div><div class="sc">Family</div><div class="box">${fam}</div></div><svg class="spark" viewBox="0 0 24 24"><use href="#sp"/></svg></div>
   <div><div class="it" style="font-size:1.05em">A Cordial Invitation</div><div class="nm" style="font-size:1.55em">${esc(w.host_name || '')}</div>
-   <div class="tx" style="font-size:1.02em">${esc(w.host_address || w.address || '')}</div>${contacts.map(c => `<div class="tx" style="font-weight:600;font-size:1.02em">${esc(c)}</div>`).join('')}</div>`, next(2, 'The Ceremony'))}
-${P(2, `<div><div class="it tx" style="font-size:1.02em;max-width:85%;margin:0 auto">${esc(w.invocation || 'In the name of Allah the most beneficent & merciful')}</div>${fl(10)}<div class="cap" style="font-size:1.25em">${esc(w.ceremony_title || 'Marriage Ceremony')}</div></div>
+   <div class="tx" style="font-size:1.02em">${esc(w.host_address \vert{}\vert{} w.address \vert{}\vert{} '')}</div>${contacts.map(c => `<div class="tx" style="font-weight:600;font-size:1.02em">${esc(c)}</div>`).join('')}</div>`, next(2, 'The Ceremony'))}
+${P(2, `<div><div class="it tx" style="font-size:1.02em;max-width:85%;margin:0 auto">${esc(w.invocation \vert{}\vert{} 'In the name of Allah the most beneficent & merciful')}</div>${fl(10)}<div class="cap" style="font-size:1.25em">${esc(w.ceremony_title || 'Marriage Ceremony')}</div></div>
   <div><div class="it tx" style="font-size:1.05em">has great pleasure to invite you to attend the wedding of their daughter</div>
    <div class="nm" style="font-size:1.95em;margin-top:.2em">${brideFull}</div><small>${esc(w.bride_parents || '')}</small>
    <div class="sc" style="font-size:2.6em">Weds</div>
